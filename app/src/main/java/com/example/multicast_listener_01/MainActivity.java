@@ -31,10 +31,11 @@ public class MainActivity extends AppCompatActivity {
         btStart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String msg = "Hello";
+                String msj = "IP = " + txIP.getText().toString() + "\nPuerto = " + txPuerto.getText().toString();
+                txDatos.setText(msj);
 
                 // join a Multicast group and send the group salutations
-                new Red().execute(msg);
+                new Red().execute(msj);
 //                byte[] buf = new byte[1000];                //Buffer de mensajes
 //                DatagramPacket recv = new DatagramPacket(buf, buf.length);
 //
@@ -63,10 +64,8 @@ public class MainActivity extends AppCompatActivity {
 //                }
             }
         });
-
         // join a Multicast group and send t he group salutations
         ///...
-
         /*
         InetAddress group = InetAddress.getByName("228.5.6.7");
         MulticastSocket s = new MulticastSocket(6789);
@@ -87,9 +86,11 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private class Red extends AsyncTask<String, Void, Void> {
+    private class Red extends AsyncTask<String, Void, byte[]> {
         @Override
-        protected Void doInBackground(String... params) {
+        protected byte[] doInBackground(String... params) {
+            byte[] buf = new byte[1000];
+
             try {
                 String msg = params[0];
                 InetAddress group = InetAddress.getByName("228.5.6.7");
@@ -101,9 +102,10 @@ public class MainActivity extends AppCompatActivity {
                 s.send(hi);
 
                 // get their responses!
-                byte[] buf = new byte[1000];
+
                 DatagramPacket recv = new DatagramPacket(buf, buf.length);
                 s.receive(recv);
+
                 Log.d("Multicast Log", Arrays.toString(buf));
 
                 // OK, I'm done talking - leave the group...
@@ -115,9 +117,17 @@ public class MainActivity extends AppCompatActivity {
             } catch (IllegalArgumentException e) {
                 System.out.println(e.getMessage());
             }
-            return null;
+            return buf; //hay que ver si esto tiene algo
+
         }
 
+        @Override
+        protected void onPostExecute(byte[] buf) {
+            super.onPostExecute(buf);
+
+            //imprimir variables por UI
+
+        }
 
     }
 
